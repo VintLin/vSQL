@@ -72,3 +72,13 @@ def main()
         print(news.id, news.name)
 ```
 打印结果
+#### 除了上述方法以外还可以添加其他的约束条件：
+```python
+    news = News()
+    news.name = 'Lin'
+    newsList = news.select(oderby='id', isasc=True, limit=5)
+```
+等效于SQL语句中的：
+```
+"SELECT * FROM News WHERE name = 'Lin' ODER BY id ASC LIMIT 5"
+```
