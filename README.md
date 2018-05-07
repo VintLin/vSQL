@@ -1,5 +1,14 @@
 # vSQL
 基于pymysql的关系映射型数据库框架
-[![Build Status](https://github.com/VoterLin/vSQL)](https://github.com/VoterLin/vSQL/)
-[![PyPI](https://www.mysql.com)](https://pypi.python.org/pypi/pubnub/)
-[![Docs](https://www.python.org)](https://www.pubnub.com/docs/python/pubnub-python-sdk-v4)
+[![vSQL](https://github.com/VoterLin/vSQL)](https://github.com/VoterLin/vSQL/)
+[![MySQL](https://www.mysql.com)](https://pypi.python.org/pypi/pubnub/)
+[![Python3.7](https://www.python.org)](https://www.python.org)
+
+###项目结构：
+
+#####vSQL———— #####vattr.py
+           |_ #####vorm.py
+    
+
+###如何使用：
+  
