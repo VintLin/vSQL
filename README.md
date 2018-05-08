@@ -14,7 +14,7 @@
 ### 如何使用：
   将vSQL放入到项目包中。
   导入vSQL包
-```pyhton
+```python
 from vSQL.vorm import Module
 from vSQL.vattr import *
 ```
@@ -34,7 +34,7 @@ class News(Module):
 ```
 之后程序就会自动帮你创建出该表与其列。
 ### 插入
-```pyhton
+```python
 def main():
     news = News()
     news.id = 123456
@@ -46,7 +46,7 @@ def main():
 "INSERT INTO News (id, name) VALUES (123456, 'VoterLin')"
 ```
 ### 查找
-```pyhton
+```python
 def main()
     news = News()
     news.id = 123456
@@ -57,7 +57,7 @@ def main()
 "SELECT * FROM News WHERE id = 123456"
 ```
 也可以不赋值
-```pyhton
+```python
     news = News()
     newsList = news.select()
 ```
@@ -67,7 +67,7 @@ def main()
 ```
 其返回值newsList的是包含查找结果的数组，其中每一项是一个News类型。
 对newsList可以
-```pyhton
+```python
     for news in newsList：
         print(news.id, news.name)
 ```
