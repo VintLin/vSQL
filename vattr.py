@@ -1,3 +1,7 @@
+def zbool(default=0):
+    return 'TINYINT(1) DEFAULT {} '.format(default)
+
+
 def zchar(size, default=''):
     return 'CHAR({}) {}'.format(size, cover(default))
 
@@ -6,7 +10,7 @@ def zvarchar(size, default=''):
     return 'VARCHAR({}) {}'.format(size, cover(default))
 
 
-def zintger(size, isunsigned=False, default=''):
+def zintger(size=10, isunsigned=False, default=''):
     if isunsigned:
         unsigned = 'UNSIGNED'
     else:
@@ -42,15 +46,25 @@ def cover(s):
     return s
 
 
-def column(type, isPrimary=False, isAutocount=False, isUnique=False, isNotnull=False):
-    col = type
-    if isNotnull:
-        col = col + ' NOT NULL'
-    if isUnique:
-        col = col + ' UNIGUE'
-    if isAutocount:
-        col = col + ' AUTO_INCREMENT'
-    if isPrimary:
-        col = col + ' PRIMARY KEY'
+class column:
+    def __init__(self, type, isPrimary=False, isAutocount=False, isUnique=False, isNotnull=False):
+        col = ''
+        if isNotnull:
+            col = col + ' NOT NULL'
+        if isUnique:
+            col = col + ' UNIQUE'
+        if isAutocount:
+            col = col + ' AUTO_INCREMENT'
+        if isPrimary:
+            col = col + ' PRIMARY KEY'
+        self.col = col
+        self.type = type
 
-    return col
+
+class foreign:
+    def __init__(self, key, table, foreignkey, keyname=''):
+        if keyname:
+            self.col = "KEY '{0}'('{1}'), CONSTRAINT '{0}' FOREIGN KEY  ('{1}')  REFERENCES  '{2}' ('{3}')".\
+                format(keyname, key, table, foreignkey)
+        else:
+            self.col = "FOREIGN KEY({}) REFERENCES {}({})".format(key, table, foreignkey)
