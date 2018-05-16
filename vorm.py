@@ -1,5 +1,8 @@
 import pymysql
-from . import js
+import json
+
+with open(__file__[:-8] + '/db.json', 'r', encoding='utf-8') as f:
+    json_dict = json.loads(f.read())
 
 CREATE = "CREATE TABLE IF NOT EXISTS {} ({})"
 INSERT = "INSERT INTO {}({}) VALUES ({})"
@@ -10,10 +13,10 @@ DROP = "DROP TABLE IF EXISTS {}"
 SHOWTABLE = "SHOW TABLES LIKE '{}'"
 SHOWDATA = "SHOW DATABASES LIKE '{}'"
 
-HOST = js['DB']
-USER = js['USER']
-PWD = js['PWD']
-DB = js['DB']
+HOST = json_dict['HOST']
+USER = json_dict['USER']
+PWD = json_dict['PWD']
+DB = json_dict['DB']
 
 
 def create_all_table():
@@ -52,7 +55,6 @@ def insert(mod):
     keys = ''
     values = ''
     for k, v in mod.get_attr().items():
-        print(k, v)
         if v:
             keys = keys + k + ', '
             values = values + cover(v, "'{}'") + ', '
@@ -71,7 +73,7 @@ def update(mod):
             rows = rows + k + '=' + cover(v, "'{}'") + ', '
     sql = UPDATE.format(table, rows[:-2], num)
     execute(sql)
-    
+
 
 def select(mod, islike=False, oderby='', isasc=True, limit=0, iscount=False, getone=False):
     table = mod.table()
@@ -127,40 +129,28 @@ def cover(attr, s):
 
 def execute(sql):
     db = pymysql.connect(HOST, USER, PWD, DB, charset="utf8")
-    # 使用cursor()方法获取操作游标
     cursor = db.cursor()
-    # SQL 查询语句
     try:
-        # 执行SQL语句
-        print(sql)
         cursor.execute(sql)
-        # 提交到数据库执行
         db.commit()
         db.close()
     except TypeError:
         print('ERROR: unable to connect')
-        # 如果发生错误则回滚
         db.rollback()
-        # 关闭数据库连接
         db.close()
 
 
 def execute_get(sql, clazz, iscount=False):
     db = pymysql.connect(HOST, USER, PWD, DB, charset="utf8")
     cursor = db.cursor()
-    # SQL 查询语句
-    # sql = "SELECT * FROM EMPLOYEE WHERE INCOME > '%d'" % (1000)
     try:
-        # 执行SQL语句
         cursor.execute(sql)
-        # 获取所有记录列表
         results = cursor.fetchall()
         items = []
         for rows in results:
             mod = clazz()
             mod.set_attr(list(rows))
             items.append(mod)
-            # 打印结果
         if iscount:
             cursor.execute('SELECT FOUND_ROWS()')
             count = cursor.fetchall()[0][0]
@@ -169,7 +159,6 @@ def execute_get(sql, clazz, iscount=False):
             return items
     except IndexError:
         print("Error: unable to fetch data")
-        # 关闭数据库连接
     finally:
         db.close()
 
@@ -178,18 +167,13 @@ def execute_get_one(sql, mod):
     db = pymysql.connect(HOST, USER, PWD, DB, charset="utf8")
     cursor = db.cursor()
     try:
-        print(sql)
-        # 执行SQL语句
         cursor.execute(sql)
-        # 获取所有记录列表
         results = cursor.fetchall()
         if results:
             mod.set_attr(list(results[0]))
-            # 打印结果
         return mod
     except IndexError:
         print("Error: unable to fetch data")
-        # 关闭数据库连接
     finally:
         db.close()
 
@@ -197,11 +181,8 @@ def execute_get_one(sql, mod):
 def execute_get_bool(sql):
     db = pymysql.connect(HOST, USER, PWD, DB, charset="utf8")
     cursor = db.cursor()
-    # SQL 查询语句
     try:
-        # 执行SQL语句
         cursor.execute(sql)
-        # 获取所有记录列表
         results = cursor.fetchall()
         if results:
             results = results[0][0]
@@ -210,7 +191,6 @@ def execute_get_bool(sql):
         return results
     except TypeError:
         print("Error: unable to fetch data")
-        # 关闭数据库连接
     finally:
         db.close()
 
@@ -260,6 +240,12 @@ class Module:
             attr[k] = self.__getattribute__(k)
         return attr
 
+    def __str__(self):
+        for k in self.rows():
+            v = self.__getattribute__(k)
+            if v:
+                print(k, ' : ', v)
+
     def isexists(self):
         return isexists(self.table()) is not None
 
@@ -285,4 +271,3 @@ class Module:
 
     def drop(self):
         return drop(self)
-
