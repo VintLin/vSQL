@@ -10,7 +10,7 @@ def zvarchar(size, default=''):
     return 'VARCHAR({}) {}'.format(size, cover(default))
 
 
-def zintger(size=10, isunsigned=False, default=''):
+def zintger(size=20, isunsigned=False, default=''):
     if isunsigned:
         unsigned = 'UNSIGNED'
     else:
@@ -38,8 +38,14 @@ def ztime(default=''):
     return 'DATE {}'.format(cover(default))
 
 
+def ztext(default=''):
+    return 'TEXT {}'.format(cover(default))
+
+
 def cover(s):
-    if len(s) is not 0:
+    if type(s) is int:
+        s = 'DEFAULT ' + str(s)
+    elif len(s) is not 0:
         s = 'DEFAULT ' + s
     else:
         s = ''
