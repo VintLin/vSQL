@@ -168,7 +168,7 @@ class News(Module):
     zdate()                     default                     DATE
     ztime()                     default                     TIME
     ztext()                     default                     TEXT
-    # 赋值给default，等于给该类型一个
+    # 赋值给default，等于给该类型一个默认值
     # 赋值给isunsigned，是设 整形/浮点型 为无符号
 ```
 ### 2.Module类
