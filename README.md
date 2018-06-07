@@ -15,10 +15,14 @@
 
 
 ## 如何使用：
-### 0.导入包：
-  将vSQL放入到项目包中。
-  导入vSQL包
-  例:创建Model.py文件
+### 0.初始化：
+  将vSQL放入你的项目文件目录下。<br>
+  修改db.json文件内容： <br>
+```json
+{"HOST": "<服务器名>", "USER": "<用户名>", "PWD": "<密码>", "DB": "<数据库名>"}
+```
+  导入vSQL包<br>
+  例:创建Model.py文件:<br>
 ```python
 from vSQL.vorm import Module
 from vSQL.vattr import *
@@ -27,8 +31,8 @@ from vSQL.vattr import *
 ####  根据你想要创建的表名和列名创建相应的类(使该类继承vorm中的Module类)和类属性。
 ####  例如:(同样在Model.py)
 ```python
-# 创建一个名为News的表(table)
-class News(Module):
+# 创建一个名为User的表(table)
+class User(Module):
     id = column(zintger(20), isAutocount=True, isPrimary=True, isNotnull=True)
     name = column(zchar(20), isNotnull=True)
     # 分别创建id，name两个列
@@ -37,7 +41,7 @@ class News(Module):
   当创建如上述代码中的类时。
   等效于SQL语句中的：
 ```sql
-CREATE TABLE IF NOT EXISTS News(id INTEGER(20) AUTO_INCREMENT PRIMARY KEY NOT NULL, name CHAR(20) NOT NULL)
+CREATE TABLE IF NOT EXISTS User(id INTEGER(20) AUTO_INCREMENT PRIMARY KEY NOT NULL, name CHAR(20) NOT NULL)
 ```
   之后程序就会自动帮你创建出该表与其列。
 ### 2.插入
@@ -46,53 +50,82 @@ CREATE TABLE IF NOT EXISTS News(id INTEGER(20) AUTO_INCREMENT PRIMARY KEY NOT NU
 from Model import *
 # 从Model.py中导入
 def main():
-    News(name='VoterLin').insert()
-    # insert() 方法中可设置参数getback为True，
-    news = News(name='VoterLin').insert(getback)
-    id = news.id
-    # 由于id被AUTO_INCREMENT约束，在数据插入时，将会自动生成。
-    # 此时需要获得插入后生成的id时。就可以用getback参数。
+    user = User(name='VoterLin').insert()
+    # 由于id被AUTO_INCREMENT修饰，在数据插入时，id将会自动生成。
+    id = user.id
+    # 此时需要获得插入后生成的id时，可直接调用被赋值实例的id值。
 ```
   等效于SQL语句中的：
 ```sql
-INSERT INTO News (id, name) VALUES (123456, 'VoterLin')
+INSERT INTO User (name) VALUES ('VoterLin')
 ```
-### 查找
+### 3.删除
 ```python
-def main()
+def main():
+    User().delete()
+    # 清空表
+    User(id=123456).delete()
+    # 删除id值为123456的行
+    User(name='Lin').delete(islike=True)
+    # 删除name值中带有Lin的行
+```
+  等效于SQL语句中的：
+```sql
+DELETE FROM User
+DELETE FROM User WHERE id = 123456
+DELETE FROM User WHERE name LIKE '%Lin%'
+```
+### 4.查找
+```python
+def main():
+    userList = User().select()
+    # 获取User表所有结果(数组)
+    userList = User(id=123456).select()
     # 获取对应的查询结果(数组)
-    newsList = News(id=123456).select()
-    # 获取第一个查询结果(News实例)
-    news = News(id=123456).select(getone=True)
-    # 只需在select方法中定义getone为True就行
+    user = User(id=123456).select(getone=True)
+    # select方法中定义getone为True, 获取第一个查询结果(User)
+    user = User(name='Lin').select(islike=True)
+    # select方法中定义islike为True，进行模糊查询。
 ```
   等效于SQL语句中的：
 ```sql
-SELECT * FROM News WHERE id = 123456
+SELECT * FROM User
+SELECT * FROM User WHERE id = 123456
+SELECT * FROM User WHERE name LIKE '%Lin%'
 ```
-  也可以不赋值
+  其返回值newsList的是包含查找结果的数组，其中每一项是一个User类型。
+  打印userList的结果:
 ```python
-    newsList = News().select()
-```
-  等效于SQL语句中的：
-```sql
-SELECT * FROM News
-```
-  其返回值newsList的是包含查找结果的数组，其中每一项是一个News类型。
-  打印newsList的结果:
-```python
-    for news in newsList：
-        print(news.id, news.name)
+    for user in userList：
+        print(user.id, user.name)
 ```
 #### 除了上述方法以外还可以添加其他的约束条件：
 ```python
-    news = News()
-    news.name = 'Lin'
-    newsList = news.select(oderby='id', isasc=True, limit=5)
+    userList = User(name='Lin').select(oderby='id', isasc=True, limit=5)
 ```
   等效于SQL语句中的：
 ```sql
-SELECT * FROM News WHERE name = 'Lin' ODER BY id ASC LIMIT 5
+SELECT * FROM User WHERE name = 'Lin' ODER BY id ASC LIMIT 5
+```
+### 5.分页
+  在实际的生产环境中经常要用到分页操作, vSQL提供Pagination这个类来完成此操作.<br>
+```python
+def main():
+  pag = User().set_pagination(page=1, pageing=30).select(oderby='id', isasc=True)
+  # 调用set_pagination方法.page当前访问的页面(page=1,当前访问第一页) 
+  # pageing为你想要一个页面显示的条目数(pageing=30,一个页面显示30条结果)
+  # 返回值为Pagination类实例. 
+  pag.page          # 当前页数
+  pag.item_count    # 符合查询条件的所有结果数
+  pag.items         # 查询结果
+  pag.pages         # 总页数
+  pag.hasPrev       # 当前页面是否有前一页
+  pag.hasNext       # 当前页面是否有后一页
+  pag.hasItem       # 是否有符合查询条件的结果
+```
+  等效于SQL语句中的：
+```sql
+SELECT * FROM User ODER BY id ASC LIMIT 0, 30
 ```
 ## 详细
   由上述已知vSQL的基本操作。接下来是详细内容
@@ -134,6 +167,7 @@ class News(Module):
     zdatetime()                 default                     DATETIME
     zdate()                     default                     DATE
     ztime()                     default                     TIME
+    ztext()                     default                     TEXT
     # 赋值给default，等于给该类型一个
     # 赋值给isunsigned，是设 整形/浮点型 为无符号
 ```
@@ -142,11 +176,15 @@ class News(Module):
   并且拥有了 select/insert 等方法
   下面是继承Module类后可以调用的方法，详解:
 ```python
-    可调用方法       参数
-    insert()        getback
-    update()        getback
-    select()        islike/oderby/isasc/limit/iscount/getone
-    create()        无(子类调用时，创建相应的表，一般是不需要调用此方法的，可以与drop()配合使用)
-    drop()          无(子类调用时，删除相应的表)
-    isexists()      无(子类调用时，判断相应的表是否存在，与前两个方法配合使用)
+    可调用方法                   参数
+    insert()                    无
+    insert_without_return()     无
+    update()                    无
+    select()                    islike/oderby/isasc/limit/iscount/getone
+    delete()                    islike
+    create()                    无(子类调用时，创建相应的表，一般是不需要调用此方法的，可以与drop()配合使用)
+    drop()                      无(子类调用时，删除相应的表)
+    isexists()                  无(子类调用时，判断相应的表是否存在，与前两个方法配合使用)
+    listener_begin()            do
+    listener_end()              do
 ```
