@@ -132,7 +132,7 @@ SELECT * FROM User ODER BY id ASC LIMIT 0, 30
 ### 1.column类
   还是这个例子:
 ```python
-class News(Module):
+class User(Module):
     id = column(zintger(20), isAutocount=True, isPrimary=True, isNotnull=True)
     name = column(zchar(20), isNotnull=True)
 ```
